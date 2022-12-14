@@ -1,4 +1,5 @@
-import requests
+import requests, json
+from datetime import datetime
 
 nutritionix_exercise_endpoint = "https://trackapi.nutritionix.com/v2/natural/exercise"
 
@@ -18,5 +19,27 @@ exercise_body = {
     "age":29
 }
 
-response = requests.post(url=nutritionix_exercise_endpoint, json=exercise_body, headers=exercise_headers)
-print(response.json())
+response = requests.post(url=nutritionix_exercise_endpoint, json=exercise_body, headers=exercise_headers).json()
+
+today = datetime.now()
+date = today.date()
+time = today.strftime("%H:%M")
+
+sheety_endpoint = "https://api.sheety.co/702e719946a64ffd027aa649d5887a1c/workoutTracker/workouts"
+
+
+for user_input in response["exercises"]:
+    sheety_body = {
+
+        "workout": {
+        "date": str(date),
+        "time": time,
+        "exercise": user_input["name"],
+        "duration": user_input["duration_min"],
+        "calories": user_input["nf_calories"]
+        }
+    }
+    response = requests.post(url=sheety_endpoint, json=sheety_body)
+    response.text
+
+
